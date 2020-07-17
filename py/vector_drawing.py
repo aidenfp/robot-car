@@ -13,7 +13,7 @@ def polar_diff(point, prev=(0, 0, 0)):
     if 3.14 < abs(theta) <= 6.28:
         theta -= 6.28*abs(theta)/theta
 
-    return r, round(-theta, 2)
+    return round(r/10, 2), round(theta, 2)
 
 
 class DataTurtle(Turtle):

@@ -42,7 +42,6 @@ void http_request(char* request, char* buff, uint16_t buff_size, uint16_t respon
   }else{
     if (serial) Serial.println("connection failed :/");
     if (serial) Serial.println("wait 0.5 sec...");
-    client.stop();
-    
+    client.stop();   
   }
 }

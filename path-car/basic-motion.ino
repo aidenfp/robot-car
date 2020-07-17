@@ -5,18 +5,20 @@
 #define LeftMotorDirPin1  7    //Left Motor direction pin 1 to MODEL-X IN3 
 #define LeftMotorDirPin2  8   //Left Motor direction pin 1 to MODEL-X IN4 
 
+/*MOTOR CONTROL*/
 
-/*motor control*/
 uint8_t forward(float distance){
   if(distance == 0) return false;
   digitalWrite(RightMotorDirPin1, HIGH);
   digitalWrite(RightMotorDirPin2,LOW);
   digitalWrite(LeftMotorDirPin1,HIGH);
   digitalWrite(LeftMotorDirPin2,LOW);
-  set_motorspeed(200, 200);
-  while(fabs(distance-lin_pos) > 0.5){
+  set_motorspeed(175, 175);
+  a_updates[0] = millis();
+  v_updates[0] = millis();
+  while(fabs(distance-lin_motion[4]) > 0.1){
     update_lin_pos(true);
-    if(distance - lin_pos < 0) break;
+    if(distance - lin_motion[4] < 0) break;
   }
   car_stop();
   return true;
@@ -24,27 +26,28 @@ uint8_t forward(float distance){
 
 uint8_t rotate_to_ang(float ang){
   if(ang == 0) return false;
-  if(ang > 0){
-    digitalWrite(RightMotorDirPin1, LOW);
-    digitalWrite(RightMotorDirPin2, HIGH);
-    digitalWrite(LeftMotorDirPin1, HIGH);
-    digitalWrite(LeftMotorDirPin2, LOW);
-    set_motorspeed(255, 255);
-    while(fabs(ang-ang_pos) > .01){
-      update_ang_pos(true);
-    }
-    car_stop();
-  }else{
+  set_motorspeed(150, 150);
+  ang_updates[0] = millis();
+  if(ang > 0){ //rotate counterclockwise
     digitalWrite(RightMotorDirPin1, HIGH);
     digitalWrite(RightMotorDirPin2, LOW);
     digitalWrite(LeftMotorDirPin1, LOW);
     digitalWrite(LeftMotorDirPin2, HIGH);
-    set_motorspeed(255, 255);
-    while(fabs(ang-ang_pos) > .1){
+    while(fabs(ang-ang_motion[2]) > .05){
       update_ang_pos(true);
+      if(ang - ang_motion[2] < 0) break;
     }
-    car_stop();
+  }else{ //rotate clockwise
+    digitalWrite(RightMotorDirPin1, LOW);
+    digitalWrite(RightMotorDirPin2, HIGH);
+    digitalWrite(LeftMotorDirPin1, HIGH);
+    digitalWrite(LeftMotorDirPin2, LOW);
+    while(fabs(ang-ang_motion[2]) > .05){
+      update_ang_pos(true);
+      if(ang - ang_motion[2] > 0) break;
+    }
   }
+  car_stop();
   return true;
 }
 
@@ -73,10 +76,12 @@ void car_initialize(){
 }
 
 void reset_location(){
-  lin_pos = 0;
-  lin_vel = 0;
-  ang_pos = 0;
-  ang_vel = 0;
+  for(int i=0;i<5;i++){
+    lin_motion[i] = 0.0;
+  }
+  for(int i=0;i<3;i++){
+    ang_motion[i] = 0.0;
+  }
 }
 
 /*

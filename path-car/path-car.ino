@@ -13,23 +13,23 @@
 uint8_t car_state = IDLE;
 */
 
-//http request buffer and parameters
+// http request buffer and parameters
 const uint16_t response_timeout = 5000;
 const uint8_t BUFFER_SIZE = 40; //size of HTTP buffer
 char http_response[BUFFER_SIZE]; //char array buffer to hold HTTP response
 char* current_point, next_point;
 
-//global position variables and imu parameters
+// global position variables and imu parameters
 const uint8_t ARRAY_SIZE = 24;
 const uint16_t INITIALIZE_COUNT = 1000;
 
 const float LIN_ACCEL_THRESHOLD = 0.1;
 const float LIN_VEL_THRESHOLD = 0.025;
-float prev_lin_accel, lin_accel, prev_lin_vel, lin_vel, lin_pos, lin_offset;
+float lin_motion[6] = {0}; //prev_lin_accel, lin_accel, prev_lin_vel, lin_vel, lin_pos, lin_offset
 float lin_accelerations[ARRAY_SIZE] = {0};
 
 const float ANG_VEL_THRESHOLD = 0.01;
-float ang_vel, ang_pos, ang_offset;
+float ang_motion[4] = {0}; //prev_ang_vel, ang_vel, ang_pos, ang_offset
 float ang_velocities[ARRAY_SIZE] = {0};
 
 float target_r, target_theta;
@@ -37,6 +37,7 @@ float target_r, target_theta;
 // timing variables
 int a_updates[2] = {0};
 int v_updates[2] = {0};
+int ang_updates[2] = {0};
 
 // Emulate Serial1 on pins 4/5
 #ifndef HAVE_HWSERIAL1
@@ -53,19 +54,17 @@ int status = WL_IDLE_STATUS;     // the Wifi radio's status
 Adafruit_MPU6050 mpu;
 
 void setup(){
-  // initialize serial for debugging
+  // initialize serial and software serial for esp32
   Serial.begin(9600);
-  // initialize serial for ESP module
   Serial1.begin(9600);
   // initialize MPU
-  //Serial.flush();
   if(mpu.begin()) Serial.println("MPU Found"); else Serial.println("MPU not found");
   mpu.setAccelerometerRange(MPU6050_RANGE_4_G);
   mpu.setGyroRange(MPU6050_RANGE_250_DEG);
   mpu.setFilterBandwidth(MPU6050_BAND_184_HZ);
   initialize_mpu_readings(true); 
   // initialize ESP module
-  /*WiFi.init(&Serial1);
+  WiFi.init(&Serial1);
 
   // check for the presence of the shield
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -82,18 +81,15 @@ void setup(){
     status = WiFi.begin(ssid, pass);
   }
 
-  Serial.println("You're connected to the network");*/
+  Serial.println("You're connected to the network");
 }
 
 
 void loop(){
-  /*http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
+  http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
   parse_point(http_response);
   rotate_to_ang(target_theta);
-  forward(target_r);*/
-  //Serial.flush();
-  forward(5);
-  delay(2500);
+  forward(target_r);
 }
 
 /*
