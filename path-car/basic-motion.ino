@@ -7,48 +7,51 @@
 
 /*MOTOR CONTROL*/
 
-uint8_t forward(float distance){
-  if(distance == 0) return false;
-  digitalWrite(RightMotorDirPin1, HIGH);
-  digitalWrite(RightMotorDirPin2,LOW);
-  digitalWrite(LeftMotorDirPin1,HIGH);
-  digitalWrite(LeftMotorDirPin2,LOW);
-  set_motorspeed(175, 175);
-  a_updates[0] = millis();
-  v_updates[0] = millis();
-  while(fabs(distance-lin_motion[4]) > 0.1){
-    update_lin_pos(true);
-    if(distance - lin_motion[4] < 0) break;
+void forward(float distance){
+  if(distance != 0.0) {
+    char out_string[25];
+    sprintf(out_string, "trying to move: %f", distance);
+    Serial.println(out_string);
+    digitalWrite(RightMotorDirPin1, HIGH);
+    digitalWrite(RightMotorDirPin2,LOW);
+    digitalWrite(LeftMotorDirPin1,HIGH);
+    digitalWrite(LeftMotorDirPin2,LOW);
+    set_motorspeed(255, 255);
+    a_updates[0] = millis();
+    v_updates[0] = millis();
+    while(fabs(distance-lin_motion[4]) > 0.1){
+      update_lin_pos(true);
+      if(distance - lin_motion[4] < 0) break;
+    }
+    car_stop();
   }
-  car_stop();
-  return true;
 }
 
-uint8_t rotate_to_ang(float ang){
-  if(ang == 0) return false;
-  set_motorspeed(150, 150);
-  ang_updates[0] = millis();
-  if(ang > 0){ //rotate counterclockwise
-    digitalWrite(RightMotorDirPin1, HIGH);
-    digitalWrite(RightMotorDirPin2, LOW);
-    digitalWrite(LeftMotorDirPin1, LOW);
-    digitalWrite(LeftMotorDirPin2, HIGH);
-    while(fabs(ang-ang_motion[2]) > .05){
-      update_ang_pos(true);
-      if(ang - ang_motion[2] < 0) break;
+void rotate_to_ang(float ang){
+  if(ang != 0) {
+    set_motorspeed(255, 255);
+    ang_updates[0] = millis();
+    if(ang > 0){ //rotate counterclockwise
+      digitalWrite(RightMotorDirPin1, HIGH);
+      digitalWrite(RightMotorDirPin2, LOW);
+      digitalWrite(LeftMotorDirPin1, LOW);
+      digitalWrite(LeftMotorDirPin2, HIGH);
+      while(fabs(ang-ang_motion[2]) > .05){
+        update_ang_pos(true);
+        if(ang - ang_motion[2] < 0) break;
+      }
+    }else{ //rotate clockwise
+      digitalWrite(RightMotorDirPin1, LOW);
+      digitalWrite(RightMotorDirPin2, HIGH);
+      digitalWrite(LeftMotorDirPin1, HIGH);
+      digitalWrite(LeftMotorDirPin2, LOW);
+      while(fabs(ang-ang_motion[2]) > .05){
+        update_ang_pos(true);
+        if(ang - ang_motion[2] > 0) break;
+      }
     }
-  }else{ //rotate clockwise
-    digitalWrite(RightMotorDirPin1, LOW);
-    digitalWrite(RightMotorDirPin2, HIGH);
-    digitalWrite(LeftMotorDirPin1, HIGH);
-    digitalWrite(LeftMotorDirPin2, LOW);
-    while(fabs(ang-ang_motion[2]) > .05){
-      update_ang_pos(true);
-      if(ang - ang_motion[2] > 0) break;
-    }
+    car_stop();
   }
-  car_stop();
-  return true;
 }
 
 void car_stop(){

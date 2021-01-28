@@ -5,13 +5,12 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 
-/*
-//state variables
-#define IDLE 0 
-#define DRIVE 1
-#define ARRIVE 2
-uint8_t car_state = IDLE;
-*/
+#define speedPinR 9    //  RIGHT PWM pin connect MODEL-X ENA
+#define RightMotorDirPin1  12    //Right Motor direction pin 1 to MODEL-X IN1 
+#define RightMotorDirPin2  11    //Right Motor direction pin 2 to MODEL-X IN2
+#define speedPinL 6    // Left PWM pin connect MODEL-X ENB
+#define LeftMotorDirPin1  7    //Left Motor direction pin 1 to MODEL-X IN3 
+#define LeftMotorDirPin2  8   //Left Motor direction pin 1 to MODEL-X IN4 
 
 // http request buffer and parameters
 const uint16_t response_timeout = 5000;
@@ -64,7 +63,7 @@ void setup(){
   mpu.setFilterBandwidth(MPU6050_BAND_184_HZ);
   initialize_mpu_readings(true); 
   // initialize ESP module
-  WiFi.init(&Serial1);
+  /*WiFi.init(&Serial1);
 
   // check for the presence of the shield
   if (WiFi.status() == WL_NO_SHIELD) {
@@ -81,33 +80,16 @@ void setup(){
     status = WiFi.begin(ssid, pass);
   }
 
-  Serial.println("You're connected to the network");
+  Serial.println("You're connected to the network");*/
+  car_initialize();
 }
 
 
 void loop(){
-  http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
-  parse_point(http_response);
-  rotate_to_ang(target_theta);
-  forward(target_r);
+  /*http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
+  parse_point(http_response);*/
+  Serial.println("hello world!");
+  forward(10);
+  rotate_to_ang(3.14);
+  delay(5000);
 }
-
-/*
-void car_fsm(){
-  update_lin_pos(false);
-  update_ang_pos(false);
-  switch(car_state){
-    case IDLE:
-    http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
-    if(strlen(http_response) != 0) strcat(current_point, http_response); else Serial.println("Unable to retrieve point");
-    http_request(request_string, http_response, BUFFER_SIZE, response_timeout, true);
-    if(strlen(http_response) != 0) strcat(next_point, http_response); else Serial.println("Unable to retrieve point");
-    parse_point(current_point);
-    if(fabs(target_r) > 0) car_state = DRIVE;
-    break;
-    case DRIVE:
-    break;
-    case ARRIVE:
-    break;
-  }
-}*/

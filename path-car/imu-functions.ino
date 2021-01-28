@@ -4,7 +4,7 @@ void initialize_mpu_readings(bool serial){
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
     lin_motion[5] += a.acceleration.y;
-    ang_motion[3] += g.gyro.z;
+    ang_motion[3] += g.gyro.x;
   }
   ang_motion[3] *= (float) 1/INITIALIZE_COUNT;
   lin_motion[5] *= (float) 1/INITIALIZE_COUNT;
