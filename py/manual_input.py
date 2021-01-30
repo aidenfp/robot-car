@@ -39,6 +39,8 @@ if __name__ == '__main__':
     back_button = tk.Button(mid_main, text="BACKWARD", command=lambda: key_handler('s'))
     right_button = tk.Button(right_main, text="TURN RIGHT", command=lambda: key_handler('d'))
     stop_button = tk.Button(main, text="STOP", command=lambda: key_handler('e'))
+    # play button
+    # pause button
 
     main.grid(column=0, row=0, sticky=tk.NSEW)
     left_main.grid(column=0, row=0, sticky=tk.NSEW)
@@ -49,6 +51,6 @@ if __name__ == '__main__':
     forward_button.grid(column=0, row=0, sticky=tk.NSEW)
     back_button.grid(column=0, row=1, sticky=tk.NSEW)
     right_button.grid(column=0, row=0, sticky=tk.NSEW)
-    stop_button.grid(column=0, row=1, columnspan=3, sticky=tk.EW)
+    stop_button.grid(column=0, row=1, sticky=tk.EW)
 
     tk.mainloop()

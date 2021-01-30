@@ -1,5 +1,4 @@
 #include "BluetoothSerial.h"
-//#include "SonicModule.h"
 #include <DFRobotDFPlayerMini.h> //for mp3 player
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h> //Used in support of TFT Display
@@ -19,8 +18,7 @@ TFT_eSPI tft = TFT_eSPI();  // Invoke library, pins defined in User_Setup.h
 BluetoothSerial SerialBT;
 
 HardwareSerial mpSerial(2);
-DFRobotDFPlayerMini music_player;
-//SonicModule sonic_module(SONIC_TRIG, SONIC_ECHO);
+DFRobotDFPlayerMini musicPlayer;
 MPU6050 imu; 
 
 enum command_type {
@@ -36,7 +34,7 @@ enum command_type {
 command_type prev_command = NONE;
 command_type command = NONE;
 
-bool is_playing = false;
+boolean is_playing = false;
 
 #define BACKGROUND TFT_BLACK
 #define BALL_COLOR TFT_WHITE
@@ -50,17 +48,17 @@ void setup() {
   Serial.println(F("Initializing DFPlayer ... (May take 3~5 seconds)"));
   mpSerial.begin(9600, SERIAL_8N1, 32, 33);  // speed, type, RX, TX
   delay(1000);
-  if (!music_player.begin(mpSerial)) {  //Use softwareSerial to communicate with mp3.
-    Serial.println(music_player.readType(), HEX);
+  if (!musicPlayer.begin(mpSerial)) {  //Use softwareSerial to communicate with mp3.
+    Serial.println(musicPlayer.readType(), HEX);
     Serial.println(F("Unable to begin:"));
     Serial.println(F("1.Please recheck the connection!"));
     Serial.println(F("2.Please insert the SD card!"));
     while(true);
   }
-  music_player.setTimeOut(500);
-  music_player.volume(30);  //Set volume value (0~30).
-  music_player.EQ(DFPLAYER_EQ_NORMAL);
-  music_player.outputDevice(DFPLAYER_DEVICE_SD);
+  musicPlayer.setTimeOut(500);
+  musicPlayer.volume(30);  //Set volume value (0~30).
+  musicPlayer.EQ(DFPLAYER_EQ_NORMAL);
+  musicPlayer.outputDevice(DFPLAYER_DEVICE_SD);
   Serial.println(F("DFPlayer Mini online."));
 
   tft.init();
@@ -76,15 +74,20 @@ void setup() {
     ESP.restart(); // restart the ESP (proper way)
   }
 
+  pinMode(SONIC_TRIG, OUTPUT);
+  pinMode(SONIC_ECHO, INPUT);
+
   pinMode(MICROPHONE_PIN, INPUT);
 
   Serial.println("Initializing motors");
   car_initialize();
 }
 
-bool written = false;
-unsigned long check_timer = millis();
-double dist = 0.0;
+boolean written = false;
+boolean started = false;
+unsigned long micro = micros();
+unsigned long milli = millis();
+unsigned long start = micros();
 
 void loop() {
   /*if (millis() - milli > 10) {
@@ -92,13 +95,27 @@ void loop() {
     Serial.print("microphone"); Serial.println(analogRead(A0));
   }*/
 
-  /*sonic_module.update();
-  if (millis() - check_timer > 10) {
-    dist = sonic_module.get_distance();
-    Serial.println(dist);
-    check_timer = millis();
-  }*/
-  char data = NULL;
+  if (!written) {
+    micro = micros();
+    written = true;
+    digitalWrite(SONIC_TRIG, HIGH);
+  }
+
+  if (micros() - micro > 10 && written) {
+    digitalWrite(SONIC_TRIG, LOW);
+    written = false;
+    if(!started && digitalRead(SONIC_ECHO) == HIGH) { 
+      start = micros(); 
+      started = true;
+    }
+    if (started && digitalRead(SONIC_ECHO) == LOW) {
+      int duration = micros() - start;
+      Serial.print("sonic"); Serial.println((double) duration * 0.017);
+      written = false;
+      started = false;
+    }
+  }
+  /*char data = NULL;
   while(SerialBT.available()) {
     data = SerialBT.read();
     //Serial.println(data);
@@ -125,9 +142,7 @@ void loop() {
     command = TOGGLE_MUSIC;
   }
 
-  //if (dist < 5) command = BACKWARD;
-
-  if (command != prev_command || (command == TOGGLE_MUSIC && data != NULL)) {
+  if (command != prev_command || command == TOGGLE_MUSIC) {
     switch(command) {
       case FORWARD:
         //Serial.println("FORWARD");
@@ -157,15 +172,15 @@ void loop() {
       case TOGGLE_MUSIC:
         if (!is_playing) {
           is_playing = true;
-          music_player.play(track);
+          musicPlayer.play(track);
         } else {
           is_playing = false;
-          music_player.pause();
+          musicPlayer.pause();
         }
       case NONE:
         break;
     }
   }
   
-  prev_command = command;
+  prev_command = command;*/
 }
