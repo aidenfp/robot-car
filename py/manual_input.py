@@ -1,13 +1,13 @@
 import serial
 import tkinter as tk
-from time import sleep
 
-arduino = serial.Serial('COM4', 9600)
+
+esp32 = serial.Serial('COM6', 9600)
 
 
 def key_handler(key):
-    print(bytes(key, 'ascii'))
-    arduino.write(bytes(key, 'ascii'))
+    print(key)
+    esp32.write(bytes(key, 'ascii'))
 
 
 if __name__ == '__main__':

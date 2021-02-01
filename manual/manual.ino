@@ -1,5 +1,5 @@
 #include "BluetoothSerial.h"
-//#include "SonicModule.h"
+#include "SonicModule.h"
 #include <DFRobotDFPlayerMini.h> //for mp3 player
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h> //Used in support of TFT Display
@@ -20,7 +20,7 @@ BluetoothSerial SerialBT;
 
 HardwareSerial mpSerial(2);
 DFRobotDFPlayerMini music_player;
-//SonicModule sonic_module(SONIC_TRIG, SONIC_ECHO);
+SonicModule sonic_module(SONIC_TRIG, SONIC_ECHO);
 MPU6050 imu; 
 
 enum command_type {
@@ -92,12 +92,12 @@ void loop() {
     Serial.print("microphone"); Serial.println(analogRead(A0));
   }*/
 
-  /*sonic_module.update();
+  sonic_module.update();
   if (millis() - check_timer > 10) {
     dist = sonic_module.get_distance();
     Serial.println(dist);
     check_timer = millis();
-  }*/
+  }
   char data = NULL;
   while(SerialBT.available()) {
     data = SerialBT.read();
