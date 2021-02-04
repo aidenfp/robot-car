@@ -67,6 +67,10 @@ void setup() {
   tft.setRotation(3);
   tft.setTextSize(1);
   tft.fillScreen(BACKGROUND);
+  tft.setCursor(20, 30, 1);
+  tft.setTextSize(10);
+  tft.setTextColor(TFT_ORANGE);
+  tft.println("^_^");
 
   if (imu.setupIMU(1)) {
     Serial.println("IMU Connected!");
@@ -87,29 +91,11 @@ unsigned long check_timer = millis();
 double dist = 0.0;
 
 void loop() {
-  /*if (millis() - milli > 10) {
-    milli = millis();
-    Serial.print("microphone"); Serial.println(analogRead(A0));
-  }*/
-
-  sonic_module.update();
-  if (millis() - check_timer > 10) {
-    dist = sonic_module.get_distance();
-    Serial.println(dist);
-    check_timer = millis();
-  }
   char data = NULL;
   while(SerialBT.available()) {
     data = SerialBT.read();
     //Serial.println(data);
   }
-
-  if (!written) {
-    tft.fillCircle(15, 15, 3, BALL_COLOR);
-    written = true;
-  }
-
-  int track = random(11, 18);
   
   if (data == 'w') {
     command = FORWARD;
@@ -124,8 +110,6 @@ void loop() {
   } else if (data == 'q') {
     command = TOGGLE_MUSIC;
   }
-
-  //if (dist < 5) command = BACKWARD;
 
   if (command != prev_command || (command == TOGGLE_MUSIC && data != NULL)) {
     switch(command) {
@@ -157,7 +141,7 @@ void loop() {
       case TOGGLE_MUSIC:
         if (!is_playing) {
           is_playing = true;
-          music_player.play(track);
+          music_player.playFolder(10, random(1, 8));
         } else {
           is_playing = false;
           music_player.pause();
@@ -165,7 +149,6 @@ void loop() {
       case NONE:
         break;
     }
-  }
-  
+  }  
   prev_command = command;
 }

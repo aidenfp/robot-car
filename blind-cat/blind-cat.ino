@@ -44,8 +44,15 @@ BotCar car(imu, speedPinR, speedPinL, RightMotorDirPin1, RightMotorDirPin2, Left
 BotAction* current_action = new BotAction;
 
 unsigned long last_sonic_update;
+unsigned long last_microphone_update;
 unsigned long last_rotation;
+unsigned long last_emotion_update;
+
+uint16_t microphone_reading;
+
+const uint16_t EMOTION_TIMEOUT = 10000;
 const uint16_t ACTION_TIMEOUT = 1500;
+const uint8_t MICROPHONE_READ_TIME = 10;
 
 void setup() {
   // begin Serial and bluetooth
@@ -90,18 +97,26 @@ void setup() {
   // begin timers
   last_rotation = millis();
   last_sonic_update = millis();
+  last_microphone_update = millis();
 }
 
 void loop() {
-  /*if (millis() - milli > 10) {
-    milli = millis();
-    Serial.print("microphone"); Serial.println(analogRead(A0));
-  }*/
+  if (millis() - last_microphone_update > MICROPHONE_READ_TIME) {
+    microphone_reading = analogRead(A0);
+    last_microphone_update = millis();
+  }
   
   sonic_module.update();
   if (millis() - last_sonic_update > 10) {
     distance = sonic_module.get_distance();
     last_sonic_update = millis();
+  }
+
+  if (millis() - last_emotion_update > EMOTION_TIMEOUT) {
+    emotion new_emotion = get_random_emotion();
+    update_face(new_emotion);
+    music_player.playFolder((int) new_emotion + 1, 1 + random(0, music_player.readFileCountsInFolder((int) new_emotion + 1)));
+    last_emotion_update = millis();
   }
   
   car.execute(current_action);
@@ -114,6 +129,10 @@ void loop() {
   if (distance < 15 && millis() - last_rotation > 100) {
     Serial.println("rotating");
     car.break_execution(current_action);
+    emotion new_emotion = SCARED;
+    update_face(new_emotion);
+    music_player.playFolder((int) new_emotion + 1, 1 + random(0, music_player.readFileCountsInFolder((int) new_emotion + 1)));
+    last_emotion_update = millis() - 7500;
     car.rotate(3.14);
     current_action->set(FORWARD, 1000);
     last_rotation = millis();

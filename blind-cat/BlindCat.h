@@ -19,6 +19,18 @@ class SonicModule {
     float get_distance();
 };
 
+enum emotion {
+  HAPPY, // ^_^
+  SAD, // v_v
+  SCARED, // >_<
+  BLUSH, // >//<
+  WEIRD, // o_O
+  CUTE, //uwu
+  BLANK, //owo
+  INDIFFERENT, // ._.
+  CRYING // ;~;
+};
+
 enum action_type {
   FORWARD,
   TURN_LEFT,
