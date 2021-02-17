@@ -1,5 +1,5 @@
 #include "BluetoothSerial.h"
-#include "BlindCat.h"
+#include "RandomAndEmote.h"
 #include <DFRobotDFPlayerMini.h> //for mp3 player
 #include <TFT_eSPI.h> // Graphics and font library for ST7735 driver chip
 #include <SPI.h> //Used in support of TFT Display

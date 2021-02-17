@@ -1,4 +1,4 @@
-#include "BlindCat.h"
+#include "RandomAndEmote.h"
 
 /* SONIC MODULE */
 SonicModule::SonicModule(int trigger_pin, int echo_pin) {
